@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Юзабилити-исследование Yandex AI — Генерация медиа</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0D0D0F;
+    --surface: #16161A;
+    --surface2: #1E1E24;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #F0EFE9;
+    --muted: #7A7977;
+    --accent: #FF4433;
+    --amber: #F5A623;
+    --green: #2ECC71;
+    --blue: #4A9EFF;
+    --purple: #9B6FFF;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Golos Text', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+  .page { max-width: 960px; margin: 0 auto; padding: 0 28px 100px; }
+
+  /* HEADER */
+  .header { padding: 72px 0 56px; border-bottom: 1px solid var(--border); margin-bottom: 48px; }
+  .header-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Unbounded', sans-serif; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 24px;
+  }
+  .header-eyebrow::before { content: ''; width: 24px; height: 1px; background: var(--accent); }
+  h1 {
+    font-family: 'Unbounded', sans-serif; font-size: 48px; font-weight: 700;
+    line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 20px;
+    background: linear-gradient(135deg, #F0EFE9 30%, #7A7977 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .header-sub { font-size: 17px; color: var(--muted); max-width: 800px; line-height: 1.75; margin-bottom: 36px; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border: 1px solid var(--border2); border-radius: 100px;
+    font-size: 12px; color: var(--muted); background: var(--surface);
+  }
+  .meta-chip.hl { color: var(--text); border-color: rgba(255,68,51,0.4); background: rgba(255,68,51,0.08); }
+
+  /* HONEST BANNER */
+  .honest-banner {
+    background: rgba(74,158,255,0.08); border: 1px solid rgba(74,158,255,0.2);
+    border-radius: var(--radius); padding: 18px 22px; font-size: 13px;
+    color: #8ab8f0; line-height: 1.65; margin-bottom: 48px;
+    display: flex; gap: 14px; align-items: flex-start;
+  }
+  .honest-banner .icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+  /* SECTION */
+  .section { margin-bottom: 72px; }
+  .section-label {
+    font-family: 'Unbounded', sans-serif; font-size: 9px; font-weight: 600;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+    margin-bottom: 28px; display: flex; align-items: center; gap: 12px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* STAT GRID */
+  .stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 48px; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 24px 20px; position: relative; overflow: hidden;
+  }
+  .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .stat-card.red::before { background: var(--accent); }
+  .stat-card.amber::before { background: var(--amber); }
+  .stat-card.blue::before { background: var(--blue); }
+  .stat-card.green::before { background: var(--green); }
+  .stat-num { font-family: 'Unbounded', sans-serif; font-size: 38px; font-weight: 700; line-height: 1; margin-bottom: 8px; }
+  .stat-card.red .stat-num { color: var(--accent); }
+  .stat-card.amber .stat-num { color: var(--amber); }
+  .stat-card.blue .stat-num { color: var(--blue); }
+  .stat-card.green .stat-num { color: var(--green); }
+  .stat-label { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+  /* JTBD */
+  .jtbd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .jtbd-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; }
+  .jtbd-persona { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .persona-avatar { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .persona-name { font-size: 14px; font-weight: 600; }
+  .persona-desc { font-size: 12px; color: var(--muted); }
+  .jtbd-job { font-size: 13.5px; line-height: 1.65; color: #C8C6BE; border-left: 2px solid var(--border2); padding-left: 14px; margin-bottom: 12px; font-style: italic; }
+  .jtbd-friction { font-size: 12px; color: var(--muted); background: rgba(255,68,51,0.06); border: 1px solid rgba(255,68,51,0.12); border-radius: var(--radius-sm); padding: 8px 12px; line-height: 1.55; }
+  .jtbd-friction strong { color: var(--accent); font-weight: 600; }
+
+  /* JOURNEY */
+  .journey-step { display: grid; grid-template-columns: 48px 1fr; margin-bottom: 4px; }
+  .step-left { display: flex; flex-direction: column; align-items: center; }
+  .step-circle {
+    width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-family: 'Unbounded', sans-serif; font-size: 11px; font-weight: 700; flex-shrink: 0; z-index: 1;
+  }
+  .step-circle.ok   { background: rgba(46,204,113,0.15); color: var(--green); border: 1.5px solid rgba(46,204,113,0.3); }
+  .step-circle.warn { background: rgba(245,166,35,0.15); color: var(--amber); border: 1.5px solid rgba(245,166,35,0.3); }
+  .step-circle.pain { background: rgba(255,68,51,0.15); color: var(--accent); border: 1.5px solid rgba(255,68,51,0.3); }
+  .step-line { width: 1.5px; flex: 1; min-height: 16px; background: var(--border); margin: 3px 0; }
+  .step-body {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px 20px; margin-left: 10px; margin-bottom: 8px;
+  }
+  .step-body.pain { border-left: 2px solid var(--accent); }
+  .step-body.warn { border-left: 2px solid var(--amber); }
+  .step-body.ok   { border-left: 2px solid var(--green); }
+  .step-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+  .step-title { font-size: 14px; font-weight: 600; line-height: 1.4; }
+  .source-badge {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 100px; white-space: nowrap; flex-shrink: 0;
+  }
+  .source-badge.observed { background: rgba(46,204,113,0.12); color: #2ECC71; border: 1px solid rgba(46,204,113,0.25); }
+  .source-badge.hypothesis { background: rgba(74,158,255,0.12); color: var(--blue); border: 1px solid rgba(74,158,255,0.25); }
+  .step-desc { font-size: 13px; color: var(--muted); line-height: 1.65; margin-bottom: 10px; }
+  .step-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .tag { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 100px; }
+  .tag.red   { background: rgba(255,68,51,0.12); color: #ff7566; }
+  .tag.amber { background: rgba(245,166,35,0.12); color: #f5a623; }
+  .tag.green { background: rgba(46,204,113,0.12); color: #2ecc71; }
+  .tag.blue  { background: rgba(74,158,255,0.12); color: #4a9eff; }
+  .tag.gray  { background: rgba(255,255,255,0.06); color: var(--muted); }
+
+  /* SCREENSHOT EMBED */
+  .screenshot-row { display: flex; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+  .screenshot-frame {
+    border: 1px solid var(--border2); border-radius: 12px; overflow: hidden;
+    background: var(--surface2); flex-shrink: 0;
+  }
+  .screenshot-frame img { display: block; height: 320px; width: auto; }
+  .screenshot-caption { font-size: 11px; color: var(--muted); padding: 8px 10px; line-height: 1.4; max-width: 200px; }
+  .screenshot-annot {
+    font-size: 11px; color: var(--accent); background: rgba(255,68,51,0.08);
+    border: 1px solid rgba(255,68,51,0.2); border-radius: var(--radius-sm);
+    padding: 8px 12px; margin-top: 10px; line-height: 1.55;
+  }
+
+  /* EMOTION CURVE */
+  .curve-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 12px; }
+  .curve-note { font-size: 12px; color: var(--muted); background: rgba(74,158,255,0.06); border: 1px solid rgba(74,158,255,0.15); border-radius: var(--radius-sm); padding: 10px 14px; line-height: 1.55; }
+
+  /* PAIN POINTS */
+  .pain-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .pain-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; position: relative; overflow: hidden; }
+  .pain-card::after { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 3px; border-radius: 3px 0 0 3px; }
+  .pain-card.critical::after { background: var(--accent); }
+  .pain-card.high::after { background: var(--amber); }
+  .pain-card.medium::after { background: var(--purple); }
+  .pain-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+  .severity-badge { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 100px; }
+  .severity-badge.critical { background: rgba(255,68,51,0.15); color: var(--accent); }
+  .severity-badge.high { background: rgba(245,166,35,0.15); color: var(--amber); }
+  .severity-badge.medium { background: rgba(155,111,255,0.15); color: var(--purple); }
+  .pain-source-badge { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 100px; white-space: nowrap; }
+  .pain-source-badge.obs { background: rgba(46,204,113,0.10); color: #2ecc71; }
+  .pain-source-badge.hyp { background: rgba(74,158,255,0.10); color: var(--blue); }
+  .pain-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; line-height: 1.4; }
+  .pain-desc { font-size: 12.5px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+  .pain-metric { font-size: 12px; background: var(--surface2); border-radius: var(--radius-sm); padding: 8px 12px; line-height: 1.55; color: var(--text); }
+  .pain-metric strong { color: var(--amber); }
+
+  /* BENCHMARK TABLE */
+  .metrics-table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  thead { background: var(--surface2); }
+  th { padding: 13px 16px; text-align: left; font-family: 'Unbounded', sans-serif; font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+  td { padding: 13px 16px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.55; color: var(--text); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .dot-ok   { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); margin-right: 5px; }
+  .dot-warn { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); margin-right: 5px; }
+  .dot-bad  { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-right: 5px; }
+
+  /* A/B */
+  .ab-list { display: flex; flex-direction: column; gap: 12px; }
+  .ab-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .ab-header { padding: 14px 20px; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+  .ab-num { font-family: 'Unbounded', sans-serif; font-size: 10px; font-weight: 700; color: var(--muted); }
+  .ab-title { font-size: 14px; font-weight: 600; }
+  .ab-body { padding: 16px 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .ab-col-title { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .ab-col-body { font-size: 13px; color: #C8C6BE; line-height: 1.6; }
+  .ab-metric { color: var(--blue); font-weight: 600; }
+
+  /* RECS */
+  .rec-list { display: flex; flex-direction: column; gap: 10px; }
+  .rec-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; display: grid; grid-template-columns: 44px 1fr auto; gap: 16px; align-items: start; }
+  .rec-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .rec-icon.red    { background: rgba(255,68,51,0.12); }
+  .rec-icon.amber  { background: rgba(245,166,35,0.12); }
+  .rec-icon.blue   { background: rgba(74,158,255,0.12); }
+  .rec-icon.green  { background: rgba(46,204,113,0.12); }
+  .rec-icon.purple { background: rgba(155,111,255,0.12); }
+  .rec-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; line-height: 1.4; }
+  .rec-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .rec-effort-col { text-align: right; flex-shrink: 0; }
+  .effort-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); display: block; margin-bottom: 4px; font-weight: 600; }
+  .effort-badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; }
+  .effort-badge.easy   { background: rgba(46,204,113,0.12); color: var(--green); }
+  .effort-badge.medium { background: rgba(245,166,35,0.12); color: var(--amber); }
+  .effort-badge.hard   { background: rgba(255,68,51,0.12); color: var(--accent); }
+
+  /* CONCLUSION */
+  .conclusion-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; position: relative; overflow: hidden; }
+  .conclusion-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), var(--purple), var(--blue)); }
+  .conclusion-card p { font-size: 15px; line-height: 1.8; color: #C8C6BE; margin-bottom: 16px; }
+  .conclusion-card p:last-child { margin-bottom: 0; color: var(--muted); font-size: 14px; }
+  .conclusion-card strong { color: var(--text); }
+
+  /* LEGEND */
+  .legend { display: flex; gap: 20px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-bottom: 20px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+
+  /* FOOTER */
+  .footer { border-top: 1px solid var(--border); padding-top: 28px; margin-top: 48px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--muted); }
+  .footer-brand { font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+
+  @media (max-width: 680px) {
+    h1 { font-size: 30px; }
+    .stat-grid { grid-template-columns: repeat(2,1fr); }
+    .jtbd-grid, .pain-grid { grid-template-columns: 1fr; }
+    .ab-body { grid-template-columns: 1fr; }
+    .rec-card { grid-template-columns: auto 1fr; }
+    .rec-effort-col { display: none; }
+    .screenshot-frame img { height: 220px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="header">
+  <div class="header-eyebrow">Юзабилити-исследование (тестовое задание) · Боднарчук Анастасия · Апрель 2026</div>
+  <h1>Генерация медиа<br>в Yandex AI</h1>
+  <p class="header-sub">Полный разбор пользовательского пути генерации изображений и видео.</p>
+  <div class="meta-row">
+    <span class="meta-chip hl">Junior Product Manager</span>
+    <span class="meta-chip">iOS · App Store</span>
+    <span class="meta-chip">Make Photo Alive + Generate Image</span>
+    <span class="meta-chip">1 реальная сессия · самостоятельное тестирование</span>
+  </div>
+</header>
+
+<div class="honest-banner">
+  <span class="icon">📌</span>
+  <div>
+    <strong style="color:var(--text)">Про источники данных.</strong> В отчёте явно разделены два типа утверждений:
+    <span style="color:#2ecc71">● Наблюдение из сессии</span> — зафиксировано лично, подтверждено скриншотами, и
+    <span style="color:var(--blue)">● Гипотеза</span> — предположение о влиянии на продуктовые метрики, требующее проверки данными.
+    Ни одно утверждение не приписывается внутренним данным Яндекса.
+  </div>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card red"><div class="stat-num">9</div><div class="stat-label">болевых точек из реальной сессии</div></div>
+  <div class="stat-card amber"><div class="stat-num">3</div><div class="stat-label">критичных разрыва сценария</div></div>
+  <div class="stat-card blue"><div class="stat-num">3</div><div class="stat-label">A/B-гипотезы для проверки</div></div>
+  <div class="stat-card green"><div class="stat-num">5</div><div class="stat-label">рекомендаций с оценкой усилий</div></div>
+</div>
+
+<!-- JTBD -->
+<div class="section">
+  <div class="section-label">Jobs To Be Done · Кто и зачем приходит</div>
+  <div class="jtbd-grid">
+    <div class="jtbd-card">
+      <div class="jtbd-persona">
+        <div class="persona-avatar" style="background:rgba(255,68,51,0.12);">🤳</div>
+        <div><div class="persona-name">Контент-мейкер</div><div class="persona-desc">Ведёт соцсети, ищет быстрый wow-эффект</div></div>
+      </div>
+      <div class="jtbd-job">«Когда я хочу удивить подписчиков необычным видео из своего фото — помоги мне сделать это красиво и быстро, не разбираясь в AI»</div>
+      <div class="jtbd-friction"><strong>Трение:</strong> находит Make Photo Alive легко, выбирает шаблон — но в чате нет подтверждения что именно выбрано. При смене стиля нужно заново загружать фото.</div>
+    </div>
+    <div class="jtbd-card">
+      <div class="jtbd-persona">
+        <div class="persona-avatar" style="background:rgba(74,158,255,0.12);">🎨</div>
+        <div><div class="persona-name">Любитель-экспериментатор</div><div class="persona-desc">Пробует AI-инструменты, не профессионал</div></div>
+      </div>
+      <div class="jtbd-job">«Когда я хочу попробовать нейросетевую генерацию картинок — помоги мне понять, что я вообще могу создавать, без изучения промптинга»</div>
+      <div class="jtbd-friction"><strong>Трение:</strong> на главном экране есть вход для видео, но нет для фото. Пишет в чат — получает непредсказуемый результат без шаблонов.</div>
+    </div>
+    <div class="jtbd-card">
+      <div class="jtbd-persona">
+        <div class="persona-avatar" style="background:rgba(46,204,113,0.12);">💼</div>
+        <div><div class="persona-name">Продвинутый пользователь</div><div class="persona-desc">Знает промпты, хочет контролируемый результат</div></div>
+      </div>
+      <div class="jtbd-job">«Когда у меня уже есть чёткое видение стиля — помоги мне быстро итерировать между вариантами без лишних действий»</div>
+      <div class="jtbd-friction"><strong>Трение:</strong> смена стиля требует повторной загрузки фото. В существующем чате нет доступа к каталогу шаблонов. Сообщения не копируются.</div>
+    </div>
+    <div class="jtbd-card">
+      <div class="jtbd-persona">
+        <div class="persona-avatar" style="background:rgba(155,111,255,0.12);">📲</div>
+        <div><div class="persona-name">Возвращающийся пользователь</div><div class="persona-desc">Уже генерировал, хочет найти прошлый результат</div></div>
+      </div>
+      <div class="jtbd-job">«Когда я хочу вернуться к видео, которое сделал раньше — помоги мне найти его и продолжить работу»</div>
+      <div class="jtbd-friction"><strong>Трение:</strong> кнопка «Назад» не ведёт в предсказуемое место. История чатов неочевидна. Назначение раздела «Websites» непонятно.</div>
+    </div>
+  </div>
+</div>
+
+<!-- JOURNEY MAP -->
+<div class="section">
+  <div class="section-label">Карта пользовательского пути · Реальная сессия со скриншотами</div>
+  <p style="font-size:13.5px;color:var(--muted);margin-bottom:12px;line-height:1.65;">
+    Все скриншоты сделаны в ходе реальной сессии тестирования приложения Yandex AI (iOS).
+  </p>
+  <div class="legend">
+    <div class="legend-item"><span style="width:14px;height:14px;border-radius:50%;background:rgba(46,204,113,0.15);border:1.5px solid rgba(46,204,113,0.3);display:inline-block;"></span> Без проблем</div>
+    <div class="legend-item"><span style="width:14px;height:14px;border-radius:50%;background:rgba(245,166,35,0.15);border:1.5px solid rgba(245,166,35,0.3);display:inline-block;"></span> Замешательство</div>
+    <div class="legend-item"><span style="width:14px;height:14px;border-radius:50%;background:rgba(255,68,51,0.15);border:1.5px solid rgba(255,68,51,0.3);display:inline-block;"></span> Критичная боль</div>
+    <div class="legend-item"><span class="source-badge observed">наблюдение</span> Подтверждено скриншотом</div>
+    <div class="legend-item"><span class="source-badge hypothesis">гипотеза</span> Предположение</div>
+  </div>
+
+  <!-- Step 1 -->
+  <div class="journey-step">
+    <div class="step-left"><div class="step-circle ok">1</div><div class="step-line"></div></div>
+    <div class="step-body ok">
+      <div class="step-head"><div class="step-title">Главный экран — «Make Photo Alive» как top skill</div><span class="source-badge observed">наблюдение</span></div>
+      <div class="step-desc">На главном экране «make photo alive» помечен как <strong style="color:var(--text)">top skill</strong> — это единственный раздел с такой меткой. Точка входа в видеогенерацию очевидна и приоритизирована. Остальные опции: «ask privately», «what should I cook?», «what should I watch?» — ни одна не связана с генерацией изображений.</div>
+      <div class="step-tags">
+        <span class="tag green">✓ Вход в видеогенерацию очевиден</span>
+        <span class="tag red">✗ Нет входа для генерации изображений</span>
+        <span class="tag amber">⚠ Image blending видно в ленте, но неочевидно как самостоятельная фича</span>
+      </div>
+      <div class="screenshot-row">
+        <div class="screenshot-frame">
+          <img src="image/1.jpg" alt="Main Screen">  
+		  <div class="screenshot-caption">Главный экран. «make photo alive» — top skill. Генерации фото нет.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="journey-step">
+    <div class="step-left"><div class="step-circle ok">2</div><div class="step-line"></div></div>
+    <div class="step-body ok">
+      <div class="step-head"><div class="step-title">Inspiration Hub — каталог шаблонов с Filter of the Day</div><span class="source-badge observed">наблюдение</span></div>
+      <div class="step-desc">После нажатия открывается экран «Inspiration hub». Наверху «Filter of the day: Jedi Saber» с таймером обратного отсчёта (Expires in 10:17:30) - это геймификация, создающая срочность. Ниже категории Popular, Trending on Social Media и т.д. Плавающая кнопка <strong style="color:var(--text)">Generate</strong> внизу экрана — явный CTA.</div>
+      <div class="step-tags">
+        <span class="tag green">✓ Структурированный каталог</span>
+        <span class="tag green">✓ Filter of the Day создаёт срочность</span>
+        <span class="tag green">✓ Кнопка Generate хорошо заметна</span>
+        <span class="tag amber">⚠ Неясно, что произойдёт после выбора шаблона</span>
+      </div>
+      <div class="screenshot-row">
+        <div class="screenshot-frame">
+          <img src="image/2.jpg" alt="Inspiration Hub"> 
+		  <div class="screenshot-caption">Inspiration Hub. Шаблоны по категориям, Filter of the Day с таймером.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="journey-step">
+    <div class="step-left"><div class="step-circle warn">3</div><div class="step-line"></div></div>
+    <div class="step-body warn">
+      <div class="step-head"><div class="step-title">Чат с шаблоном — промпт подставлен, но нечитаем</div><span class="source-badge observed">наблюдение</span></div>
+      <div class="step-desc">После выбора шаблона приложение переходит в чат. Промпт шаблона автоматически подставляется в поле ввода — это хорошо. Снизу видна кнопка <strong style="color:var(--text)">«make photo alive»</strong> как тег в строке ввода — подтверждение режима. Однако промпт очень длинный (5+ строк) и полностью заполняет поле, пользователь не видит его целиком до отправки. Нет краткого названия шаблона рядом с полем ввода.</div>
+      <div class="step-tags">
+        <span class="tag green">✓ Шаблон подставляется в поле ввода</span>
+        <span class="tag green">✓ Тег «make photo alive» показывает режим</span>
+        <span class="tag amber">⚠ Промпт-текст нечитаем целиком, очень длинный</span>
+        <span class="tag amber">⚠ Нет краткого названия шаблона («Jedi Saber») рядом с полем</span>
+      </div>
+      <div class="screenshot-row">
+        <div class="screenshot-frame">
+		<img src="image/3.jpg" alt="Чат с промптом шаблона"> 
+          <div class="screenshot-caption">Промпт шаблона в поле ввода. Тег «make photo alive» снизу.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="journey-step">
+    <div class="step-left"><div class="step-circle ok">4</div><div class="step-line"></div></div>
+    <div class="step-body ok">
+      <div class="step-head"><div class="step-title">Отправка и статусы обработки</div><span class="source-badge observed">наблюдение</span></div>
+      <div class="step-desc">После отправки система показывает статус «Decomposing the task...» и далее — понятные текстовые индикаторы того, что запрос принят в работу. Фото и промпт отображаются в истории чата.</div>
+      <div class="step-tags">
+        <span class="tag green">✓ Статусы понятны</span>
+        <span class="tag green">✓ Фото и промпт видны в чате</span>
+      </div>
+      <div class="screenshot-row">
+        <div class="screenshot-frame">
+		<img src="image/4.jpg" alt="Cтатусы обработки"> 
+           <div class="screenshot-caption">Статусы обработки. Фото и промпт в истории чата.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 5 -->
+  <div class="journey-step">
+    <div class="step-left"><div class="step-circle ok">5</div><div class="step-line"></div></div>
+    <div class="step-body ok">
+      <div class="step-head"><div class="step-title">Генерация: таймер + блок «Let's see what else you can do»</div><span class="source-badge observed">наблюдение</span></div>
+      <div class="step-desc">Во время генерации отображается: «Generating video... 58 seconds left» — конкретное время ожидания. Ниже блок со ссылками на другие функции приложения («let's talk a bit», «check out the news summaries» и т.д.). Лайк/дизлайк под блоком. Это хороший способ занять внимание пользователя во время ожидания.<br><strong style="color:var(--text)">Что не хватает:</strong> полосы прогресса (progress bar) — только текстовый таймер. Нет кнопки отмены.</div>
+      <div class="step-tags">
+        <span class="tag green">✓ Конкретное время «58 seconds left»</span>
+        <span class="tag green">✓ Блок занятости пользователя во время ожидания</span>
+        <span class="tag amber">⚠ Нет progress bar — только текстовый таймер</span>
+        <span class="tag red">✗ Нет кнопки отмены/редактирования</span>
+      </div>
+      <div class="screenshot-row">
+        <div class="screenshot-frame">
+          <img src="image/6.jpg" alt="Генерация"> 
+		  <div class="screenshot-caption">Генерация: таймер 58 сек + блок с другими действиями.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 6 -->
+  <div class="journey-step">
+    <div class="step-left"><div class="step-circle warn">6</div><div class="step-line"></div></div>
+    <div class="step-body warn">
+      <div class="step-head"><div class="step-title">Результат — кнопки действий мелкие и неиерархичные</div><span class="source-badge observed">наблюдение</span></div>
+      <div class="step-desc">Изображение сгенерировано (Jedi с мечом; шаблон применился корректно). Под изображением есть кнопка «Change the style >», иконки лайк / дизлайк / скачать / поделиться.<br><strong style="color:var(--text)">Проблемы:</strong> все иконки одного размера и визуального веса — нет иерархии. Скачивание (ключевое действие) не выделено. Кнопка «Change the style» выглядит как дополнительная опция, а не основной CTA для итерации.</div>
+      <div class="step-tags">
+        <span class="tag green">✓ Шаблон применился корректно</span>
+        <span class="tag green">✓ Кнопка шеринга есть</span>
+        <span class="tag amber">⚠ Нет иерархии действий — все кнопки одного веса</span>
+        <span class="tag red">✗ Кнопка скачивания мелкая, не выделена как главное действие</span>
+        <span class="tag red">✗ Нет fullscreen с первого касания на изображение</span>
+      </div>
+      <div class="screenshot-row">
+        <div class="screenshot-frame">
+          <img src="image/5.jpg" alt="Результат генерации"> 
+		  <div class="screenshot-caption">Результат. «Change the style» + мелкие иконки действий.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 7 — CRITICAL -->
+  <div class="journey-step">
+    <div class="step-left"><div class="step-circle pain">7</div><div class="step-line"></div></div>
+    <div class="step-body pain">
+      <div class="step-head"><div class="step-title">🔴 «Пустой ответ» — система приняла промпт, но не ответила</div><span class="source-badge observed">наблюдение</span></div>
+      <div class="step-desc">На скриншоте видно, что промпт отправлен, виден в чате. Под ним только иконки лайк/дизлайк, но <strong style="color:var(--text)">нет ответа системы: ни результата, ни сообщения об ошибке, ни индикатора загрузки</strong>. Поле «Ask follow up» активно, но непонятно — нужно что-то написать, подождать, или произошла ошибка?</div>
+      <div class="step-tags">
+        <span class="tag red">✗ Нет ответа системы — ни результата, ни ошибки</span>
+        <span class="tag red">✗ Нет объяснения: что пошло не так</span>
+        <span class="tag red">✗ Лайк/дизлайк под пустым ответом — неуместно</span>
+        <span class="tag gray">Нильсен #1: видимость статуса системы</span>
+        <span class="tag gray">Нильсен #9: помощь при ошибках</span>
+      </div>
+      <div class="screenshot-row">
+        <div class="screenshot-frame">
+          <img src="image/7.jpg" alt="Пустой ответ"> 
+		  <div class="screenshot-caption">Пустой ответ. Промпт виден, результата нет, ошибка не показана.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 8 — CRITICAL -->
+  <div class="journey-step">
+    <div class="step-left"><div class="step-circle pain">8</div><div class="step-line"></div></div>
+    <div class="step-body pain">
+      <div class="step-head"><div class="step-title">🔴 Потеря навигации после «Назад» + раздел «Websites»</div><span class="source-badge observed">наблюдение</span></div>
+      <div class="step-desc">После нажатия кнопки Назад "<" в чате непонятно, куда попадает пользователь. История чатов не очевидна. В навигации обнаружен раздел «Websites» — его назначение не объяснено нигде в интерфейсе. Создаёт когнитивную нагрузку у пользователя, пытающегося вернуться к прошлому результату.</div>
+      <div class="step-tags">
+        <span class="tag red">✗ Нет предсказуемого поведения кнопки «Назад»</span>
+        <span class="tag red">✗ Раздел «Websites» без пояснения</span>
+        <span class="tag amber">⚠ История чатов неочевидна для нового пользователя</span>
+      </div>
+	  <div class="screenshot-row">
+        <div class="screenshot-frame">
+          <img src="image/8.jpg" alt="Потеря навигации"> 
+		  <div class="screenshot-caption">Неочевидный раздел истории чатов. Раздел «Websites»</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 9 — CRITICAL -->
+  <div class="journey-step">
+    <div class="step-left"><div class="step-circle pain">9</div><div class="step-line"></div></div>
+    <div class="step-body pain">
+      <div class="step-head"><div class="step-title">🔴 Генерация фото: нет шаблонов, только чат</div><span class="source-badge observed">наблюдение</span></div>
+      <div class="step-desc">При желании сгенерировать изображение нет явного входа на главном экране. После ввода «generate photo» в чат система генерирует случайный портрет незнакомого человека. Шаблонов, похожих на Inspiration Hub для видео, для генерации фото нет. Пользователь вынужден знать промптинг или угадывать команды.</div>
+      <div class="step-tags">
+        <span class="tag red">✗ Нет входа для генерации фото на главном экране</span>
+        <span class="tag red">✗ Нет Inspiration Hub / шаблонов для фотогенерации</span>
+        <span class="tag amber">⚠ Без промпта результат непредсказуем</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /journey -->
+
+<!-- EMOTION CURVE -->
+<div class="section">
+  <div class="section-label">Эмоциональная кривая · Восстановлена по сессии</div>
+  <div class="curve-wrap">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:18px;">Субъективная оценка настроения по шагам сессии (1 = фрустрация, 5 = удовлетворение). Восстановлена по описанию и скриншотам.</div>
+    <svg width="100%" viewBox="0 0 820 220" xmlns="http://www.w3.org/2000/svg">
+      <line x1="70" y1="190" x2="800" y2="190" stroke="#2a2a30" stroke-width="1"/>
+      <line x1="70" y1="150" x2="800" y2="150" stroke="#2a2a30" stroke-width="1" stroke-dasharray="3,4"/>
+      <line x1="70" y1="110" x2="800" y2="110" stroke="#2a2a30" stroke-width="1" stroke-dasharray="3,4"/>
+      <line x1="70" y1="70"  x2="800" y2="70"  stroke="#2a2a30" stroke-width="1" stroke-dasharray="3,4"/>
+      <line x1="70" y1="30"  x2="800" y2="30"  stroke="#2a2a30" stroke-width="1" stroke-dasharray="3,4"/>
+      <text x="55" y="34"  text-anchor="end" font-family="sans-serif" font-size="10" fill="#555">5</text>
+      <text x="55" y="74"  text-anchor="end" font-family="sans-serif" font-size="10" fill="#555">4</text>
+      <text x="55" y="114" text-anchor="end" font-family="sans-serif" font-size="10" fill="#555">3</text>
+      <text x="55" y="154" text-anchor="end" font-family="sans-serif" font-size="10" fill="#555">2</text>
+      <text x="55" y="190" text-anchor="end" font-family="sans-serif" font-size="10" fill="#555">1</text>
+      <!-- Steps x: 100,190,280,365,450,535,620,700,775 -->
+      <!-- Scores: 4,4,3,4,4,3,1,1,2 → y=190-(s-1)*40 -->
+      <!-- 4→70, 4→70, 3→110, 4→70, 4→70, 3→110, 1→190, 1→190, 2→150 -->
+      <defs>
+        <linearGradient id="cg2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#FF4433" stop-opacity="0.12"/>
+          <stop offset="100%" stop-color="#FF4433" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d="M100,70 L190,70 C220,90 250,110 280,110 C310,90 335,70 365,70 L450,70 C480,90 505,110 535,110 C555,150 575,190 620,190 L700,190 C720,170 745,150 775,150 L775,190 L100,190 Z" fill="url(#cg2)"/>
+      <path d="M100,70 L190,70 C220,90 250,110 280,110 C310,90 335,70 365,70 L450,70 C480,90 505,110 535,110 C555,150 575,190 620,190 L700,190 C720,170 745,150 775,150" fill="none" stroke="#FF4433" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="100" cy="70"  r="5" fill="#2ECC71" stroke="#0D0D0F" stroke-width="2"/>
+      <circle cx="190" cy="70"  r="5" fill="#2ECC71" stroke="#0D0D0F" stroke-width="2"/>
+      <circle cx="280" cy="110" r="5" fill="#F5A623" stroke="#0D0D0F" stroke-width="2"/>
+      <circle cx="365" cy="70"  r="5" fill="#2ECC71" stroke="#0D0D0F" stroke-width="2"/>
+      <circle cx="450" cy="70"  r="5" fill="#2ECC71" stroke="#0D0D0F" stroke-width="2"/>
+      <circle cx="535" cy="110" r="5" fill="#F5A623" stroke="#0D0D0F" stroke-width="2"/>
+      <circle cx="620" cy="190" r="7" fill="#FF4433" stroke="#0D0D0F" stroke-width="2"/>
+      <circle cx="700" cy="190" r="7" fill="#FF4433" stroke="#0D0D0F" stroke-width="2"/>
+      <circle cx="775" cy="150" r="5" fill="#F5A623" stroke="#0D0D0F" stroke-width="2"/>
+      <line x1="620" y1="182" x2="650" y2="155" stroke="#FF4433" stroke-width="0.8" stroke-dasharray="3,3"/>
+      <text x="654" y="152" font-family="sans-serif" font-size="10" fill="#FF4433" font-weight="600">Пустой ответ</text>
+      <line x1="700" y1="182" x2="660" y2="155" stroke="#FF4433" stroke-width="0.8" stroke-dasharray="3,3"/>
+      <text x="100" y="212" text-anchor="middle" font-family="sans-serif" font-size="9.5" fill="#555">Главный</text>
+      <text x="190" y="212" text-anchor="middle" font-family="sans-serif" font-size="9.5" fill="#555">Хаб</text>
+      <text x="280" y="212" text-anchor="middle" font-family="sans-serif" font-size="9.5" fill="#555">Чат</text>
+      <text x="365" y="212" text-anchor="middle" font-family="sans-serif" font-size="9.5" fill="#555">Отправка</text>
+      <text x="450" y="212" text-anchor="middle" font-family="sans-serif" font-size="9.5" fill="#555">Ожидание</text>
+      <text x="535" y="212" text-anchor="middle" font-family="sans-serif" font-size="9.5" fill="#555">Результат</text>
+      <text x="620" y="212" text-anchor="middle" font-family="sans-serif" font-size="9.5" fill="#FF4433" font-weight="600">Нет ответа</text>
+      <text x="700" y="212" text-anchor="middle" font-family="sans-serif" font-size="9.5" fill="#FF4433" font-weight="600">Потеря пути</text>
+      <text x="775" y="212" text-anchor="middle" font-family="sans-serif" font-size="9.5" fill="#555">Фото</text>
+    </svg>
+  </div>
+  <div class="curve-note">⚠️ Кривая восстановлена по описанию и скриншотам одной сессии. Для объективных данных необходим think-aloud тест на 5+ участниках с протоколом фиксации эмоций.</div>
+</div>
+
+<!-- PAIN POINTS -->
+<div class="section">
+  <div class="section-label">Болевые точки · 3 критичных + 6 значимых</div>
+  <div class="pain-grid">
+
+    <div class="pain-card critical">
+      <div class="pain-top"><span class="severity-badge critical">Критично</span><span class="pain-source-badge obs">наблюдение</span></div>
+      <div class="pain-title">Система молча не отвечает — нет ни результата, ни ошибки</div>
+      <div class="pain-desc">При сложном промпте система не выдаёт результат и не сообщает об ошибке. Пользователь видит только иконки лайк/дизлайк под пустым местом. Нет понимания: баг, лимит, таймаут?</div>
+      <div class="pain-metric"><strong>Гипотетическое влияние:</strong> пользователь, получивший немотивированный пустой ответ, с высокой вероятностью не возвращается в следующей сессии</div>
+    </div>
+
+    <div class="pain-card critical">
+      <div class="pain-top"><span class="severity-badge critical">Критично</span><span class="pain-source-badge obs">наблюдение</span></div>
+      <div class="pain-title">Название шаблона не отображается — только длинный промпт</div>
+      <div class="pain-desc">В поле ввода подставляется полный текст промпта шаблона (5+ строк), но не его название. Пользователь не может быстро подтвердить, тот ли шаблон выбран. При первом опыте это создаёт неуверенность.</div>
+      <div class="pain-metric"><strong>Гипотетическое влияние:</strong> снижает доверие к интерфейсу на этапе подтверждения выбора — ключевой момент перед первой генерацией</div>
+    </div>
+
+    <div class="pain-card critical">
+      <div class="pain-top"><span class="severity-badge critical">Критично</span><span class="pain-source-badge obs">наблюдение</span></div>
+      <div class="pain-title">Нет Inspiration Hub для генерации фото — только чат</div>
+      <div class="pain-desc">Для видео есть полноценный каталог с шаблонами, Filter of the Day и структурой. Для генерации изображений — только чат и текстовая команда. Асимметрия опыта для двух основных функций.</div>
+      <div class="pain-metric"><strong>Гипотетическое влияние:</strong> низкий activation rate фичи генерации фото — пользователи не знают о ней или не понимают, как начать</div>
+    </div>
+
+    <div class="pain-card high">
+      <div class="pain-top"><span class="severity-badge high">Высокий</span><span class="pain-source-badge obs">наблюдение</span></div>
+      <div class="pain-title">Нет иерархии действий под результатом</div>
+      <div class="pain-desc">Кнопки скачивания, шеринга, лайков — одного визуального веса. Главное действие (сохранить/поделиться) не выделено. «Change the style» выглядит как дополнительная опция, не как CTA.</div>
+      <div class="pain-metric"><strong>Гипотетическое влияние:</strong> снижает % сохранений и шеринга — ключевого канала виральности</div>
+    </div>
+
+    <div class="pain-card high">
+      <div class="pain-top"><span class="severity-badge high">Высокий</span><span class="pain-source-badge obs">наблюдение</span></div>
+      <div class="pain-title">Смена стиля требует повторной загрузки фото</div>
+      <div class="pain-desc">Итерация по стилям — ожидаемый и частый сценарий. Каждый раз загружать фото заново — лишний шаг, который прерывает творческий flow. Конкуренты этого не требуют.</div>
+      <div class="pain-metric"><strong>Гипотетическое влияние:</strong> снижение среднего числа итераций на сессию → меньше вовлечения со стилями и premium-контентом</div>
+    </div>
+
+    <div class="pain-card high">
+      <div class="pain-top"><span class="severity-badge high">Высокий</span><span class="pain-source-badge obs">наблюдение</span></div>
+      <div class="pain-title">Потеря навигации после «Назад» + раздел «Websites»</div>
+      <div class="pain-desc">Кнопка «Назад» не ведёт в предсказуемое место. Раздел «Websites» в навигации непонятен — его назначение нигде не объяснено. Создаёт барьер для возвращающихся пользователей.</div>
+      <div class="pain-metric"><strong>Гипотетическое влияние:</strong> снижает retention — пользователи не могут найти прошлые результаты и теряют интерес</div>
+    </div>
+
+    <div class="pain-card medium">
+      <div class="pain-top"><span class="severity-badge medium">Средний</span><span class="pain-source-badge obs">наблюдение</span></div>
+      <div class="pain-title">Нет progress bar — только текстовый таймер</div>
+      <div class="pain-desc">«58 seconds left» — конкретно и полезно. Но прогресс-бар (полоса заполнения) создаёт более сильное ощущение движения к результату. Без него ожидание воспринимается тяжелее, особенно при сбоях.</div>
+      <div class="pain-metric"><strong>Гипотетическое влияние:</strong> рост тревожности при ожидании, особенно при первом использовании</div>
+    </div>
+
+    <div class="pain-card medium">
+      <div class="pain-top"><span class="severity-badge medium">Средний</span><span class="pain-source-badge obs">наблюдение</span></div>
+      <div class="pain-title">Нет fullscreen-просмотра с первого касания</div>
+      <div class="pain-desc">Результат виден в превью внутри чата. Для оценки качества пользователь должен выполнить дополнительное действие, которое неочевидно с первого взгляда.</div>
+      <div class="pain-metric"><strong>Гипотетическое влияние:</strong> воспринимаемое качество результата ниже реального — негативно влияет на оценку продукта</div>
+    </div>
+
+    <div class="pain-card medium">
+      <div class="pain-top"><span class="severity-badge medium">Средний</span><span class="pain-source-badge obs">наблюдение</span></div>
+      <div class="pain-title">Шаблоны недоступны в существующем чате</div>
+      <div class="pain-desc">Нет способа открыть Inspiration Hub из активного чата. Для использования другого шаблона нужно создавать новый чат, теряя контекст.</div>
+      <div class="pain-metric"><strong>Гипотетическое влияние:</strong> фрагментация истории работы, лишние чаты, ощущение неудобства у повторных пользователей</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- A/B -->
+<div class="section">
+  <div class="section-label">A/B-гипотезы · 3 приоритетных эксперимента</div>
+  <div class="ab-list">
+    <div class="ab-card">
+      <div class="ab-header"><span class="ab-num">H-01</span><span class="ab-title">Чип с названием шаблона в поле ввода чата</span></div>
+      <div class="ab-body">
+        <div><div class="ab-col-title">Контроль (сейчас)</div><div class="ab-col-body">В поле ввода — только полный текст промпта шаблона (5+ строк). Название (напр. «Jedi Saber») нигде не показано.</div></div>
+        <div><div class="ab-col-title">Вариант</div><div class="ab-col-body">Над полем ввода или в нём — небольшой чип «Jedi Saber». Пользователь сразу видит название выбранного шаблона и может его убрать.</div></div>
+        <div><div class="ab-col-title">Метрика успеха</div><div class="ab-col-body">Рост <span class="ab-metric">% пользователей, отправивших запрос после выбора шаблона</span> (без удаления промпта и выхода обратно в каталог)</div></div>
+      </div>
+    </div>
+    <div class="ab-card">
+      <div class="ab-header"><span class="ab-num">H-02</span><span class="ab-title">Inspiration Hub для генерации фото на главном экране</span></div>
+      <div class="ab-body">
+        <div><div class="ab-col-title">Контроль (сейчас)</div><div class="ab-col-body">Генерация фото доступна только через чат. На главном экране нет карточки или входа.</div></div>
+        <div><div class="ab-col-title">Вариант</div><div class="ab-col-body">Рядом с «Make Photo Alive» — карточка «Generate Image» с входом в Inspiration Hub для фото (те же категории Popular / Trending, Filter of the Day).</div></div>
+        <div><div class="ab-col-title">Метрика успеха</div><div class="ab-col-body">Рост <span class="ab-metric">activation rate фичи генерации фото</span> (% новых пользователей, выполнивших первую генерацию фото в первые 3 дня)</div></div>
+      </div>
+    </div>
+    <div class="ab-card">
+      <div class="ab-header"><span class="ab-num">H-03</span><span class="ab-title">Смена стиля с сохранённым фото + крупная кнопка скачивания</span></div>
+      <div class="ab-body">
+        <div><div class="ab-col-title">Контроль (сейчас)</div><div class="ab-col-body">«Change the style» — маленькая кнопка. Требует повторной загрузки фото. Кнопка скачивания — иконка того же веса, что лайк/дизлайк.</div></div>
+        <div><div class="ab-col-title">Вариант</div><div class="ab-col-body">«Change the style» открывает inline-шторку с шаблонами, фото сохраняется. Кнопка «Сохранить» большая, выделенная, основной CTA под результатом.</div></div>
+        <div><div class="ab-col-title">Метрика успеха</div><div class="ab-col-body">Рост <span class="ab-metric">среднего числа генераций на сессию</span> + рост <span class="ab-metric">% пользователей, сохранивших результат</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RECS -->
+<div class="section">
+  <div class="section-label">Рекомендации · Приоритет по impact/effort</div>
+  <div class="rec-list">
+    <div class="rec-card">
+      <div class="rec-icon amber">🏷️</div>
+      <div class="rec-content">
+        <div class="rec-title">Добавить чип с названием шаблона в интерфейс чата</div>
+        <div class="rec-desc">Под полем ввода или над ним — небольшой тег «Jedi Saber». Один компонент, один спринт. Устраняет неуверенность пользователя в момент подтверждения выбора — критичный момент перед первой генерацией.</div>
+      </div>
+      <div class="rec-effort-col"><span class="effort-label">Усилие</span><span class="effort-badge easy">Малое</span></div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-icon red">🚨</div>
+      <div class="rec-content">
+        <div class="rec-title">Добавить сообщение об ошибке при пустом ответе</div>
+        <div class="rec-desc">«Не удалось выполнить запрос. Попробуйте упростить описание или выбрать другой стиль» — минимальное изменение с максимальным эффектом на доверие. Устраняет самый разрушительный сценарий: пользователь не понимает, что произошло.</div>
+      </div>
+      <div class="rec-effort-col"><span class="effort-label">Усилие</span><span class="effort-badge easy">Малое</span></div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-icon blue">🖼️</div>
+      <div class="rec-content">
+        <div class="rec-title">Inspiration Hub для генерации фото — вход на главном экране</div>
+        <div class="rec-desc">Карточка рядом с «Make Photo Alive», ведущая в аналогичный каталог шаблонов для изображений. Устраняет ключевую асимметрию в UX и открывает фичу для пользователей, не знающих о её существовании.</div>
+      </div>
+      <div class="rec-effort-col"><span class="effort-label">Усилие</span><span class="effort-badge medium">Среднее</span></div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-icon green">🔄</div>
+      <div class="rec-content">
+        <div class="rec-title">Смена стиля без повторной загрузки + Inspiration Hub из чата</div>
+        <div class="rec-desc">«Change the style» далее inline-шторка с каталогом, фото сохраняется автоматически. Одновременно добавить кнопку доступа к шаблонам прямо в интерфейс чата без создания нового.</div>
+      </div>
+      <div class="rec-effort-col"><span class="effort-label">Усилие</span><span class="effort-badge medium">Среднее</span></div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-icon purple">📤</div>
+      <div class="rec-content">
+        <div class="rec-title">Иерархия действий под результатом + progress bar</div>
+        <div class="rec-desc">Крупная кнопка «Сохранить» как основной CTA. Кнопка «Поделиться» второй уровень. Лайк/дизлайк — третий. Отдельно: прогресс-бар во время генерации вместо (или вместе с) текстовым таймером.</div>
+      </div>
+      <div class="rec-effort-col"><span class="effort-label">Усилие</span><span class="effort-badge medium">Среднее</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- CONCLUSION -->
+<div class="section">
+  <div class="section-label">Выводы</div>
+  <div class="conclusion-card">
+    <p>Yandex AI имеет реальное конкурентное преимущество в видеогенерации: <strong>Inspiration Hub с шаблонами, Filter of the Day, таймер, блок занятости во время ожидания</strong> — это продуманные решения, которых нет у многих конкурентов. Когда шаблон применяется корректно, результат качественный.</p>
+    <p>Проблема не в модели — <strong>три критичных разрыва в UX-склейке</strong> уничтожают опыт: система не отвечает и не объясняет почему; название шаблона не подтверждается в чате; генерация фото скрыта за чатом без шаблонов. Это не сложные архитектурные задачи — это пропущенные состояния интерфейса.</p>
+    <p>Первые два исправления (чип шаблона + сообщение об ошибке) — <strong>один спринт</strong>, нулевые изменения в модели. Они закрывают самые частые точки разочарования до того, как пользователь успевает оценить качество продукта.</p>
+    <p>Важная оговорка: данное исследование основано на одной сессии тестирования одним пользователем. Для количественного подтверждения гипотез необходимы модерируемые тесты (5–8 участников), анализ funnel drop-off и описанные A/B-эксперименты.</p>
+  </div>
+</div>
+
+<footer class="footer">
+  <div>
+    <div class="footer-brand">Yandex AI · Юзабилити-исследование</div>
+    <div style="margin-top:3px;">Генерация медиа — изображения и видео · Апрель 2026</div>
+  </div>
+  <div style="text-align:right;"><div>Боднарчук Анастасия, Junior Product Manager</div></div>
+</footer>
+
+</div>
+</body>
+</html>
