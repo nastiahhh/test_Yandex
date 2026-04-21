@@ -142,10 +142,22 @@
   /* SCREENSHOT EMBED */
   .screenshot-row { display: flex; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
   .screenshot-frame {
-    border: 1px solid var(--border2); border-radius: 12px; overflow: hidden;
-    background: var(--surface2); flex-shrink: 0;
-  }
-  .screenshot-frame img { display: block; height: 320px; width: auto; }
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface2);
+  flex-shrink: 0;
+
+  display: block;
+  clip-path: inset(0 round 12px);
+}
+
+.screenshot-frame img {
+  display: block;
+  width: 100%;
+  height: 320px;
+  object-fit: contain;
+}
   .screenshot-caption { font-size: 11px; color: var(--muted); padding: 8px 10px; line-height: 1.4; max-width: 200px; }
   .screenshot-annot {
     font-size: 11px; color: var(--accent); background: rgba(255,68,51,0.08);
